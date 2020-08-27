@@ -1,0 +1,29 @@
+name: Hugo
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.3.2
+        with:
+          submodules: true
+
+      - name: List files
+        run: find *
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v1.1.0
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+          repository: squarescale/sqsc-demo-blog-hugo
+          tags: latest
+          tag_with_ref: true
+          tag_with_sha: true
+
+      - name: List files
+        run: curl -sv -X POST https://www.squarescale.io/callbacks/containers/${{ secrets.SQSC_SERVICE_UUID }}/refresh
